@@ -1,8 +1,4 @@
-<h1 align="center">
-  Mask CoMER
-  <br>
-  <small>Enhancing Handwritten Mathematical Expression Recognition with Masked Language Pretraining and Regularization</small>
-</h1>
+# Mask CoMER: Enhancing Handwritten Mathematical Expression Recognition with Masked Language Pretraining and Regularization (Coming Soon!)
 
 <p align="center">
   <a href="#"><img alt="Paper" src="https://img.shields.io/badge/Paper-PDF-blue?logo=readthedocs"></a>
