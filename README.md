@@ -16,16 +16,7 @@
 
 ## 📝 Abstract
 
-> **Handwritten Mathematical Expression Recognition (HMER)** is crucial for enhancing human–machine interaction in domains such as digitized education and automated document processing.  
-> While existing transformer-based methods employ coverage mechanisms to capture context, they often lose critical cues that a human could quickly correct.
->
-> **We propose Mask CoMER**, a two-stage training approach that combines a novel Masked Language Model pretraining objective with stochastic depth regularization.  
-> This method enhances contextual understanding and mitigates information loss, leading to improved recognition accuracy.
->
-> **Results:**  
-> - On **CROHME 2014**, **2016**, and **2019** datasets, Mask CoMER achieves state-of-the-art ExpRates of **64.56%**, **63.03%**, and **65.22%**, respectively.
-> - Outperforms baseline CoMER by up to **5%**
-> - Surpasses the previous SOTA by nearly **2%**
+> Handwritten Mathematical Expression Recognition (HMER) is crucial for enhancing human-machine interaction in domains such as digitized education and automated document processing. While existing transformer-based methods employ coverage mechanisms to capture context, they often still lose critical cues that a human could quickly correct. To address this, we propose Mask CoMER, a two-stage training approach that combines a novel Masked Language Model pretraining objective with stochastic depth regularization. This method enhances contextual understanding and mitigates information loss, leading to improved recognition accuracy. Experiments on the CROHME 2014, 2016, and 2019 datasets demonstrate that Mask CoMER achieves state-of-the-art ExpRates of 64.56\%, 63.03\%, and 65.22\%, respectively. These results outperform the baseline CoMER by up to 5\% and surpass the previous SOTA by nearly 2\%
 
 ---
 
