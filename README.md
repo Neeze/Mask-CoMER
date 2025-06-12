@@ -16,22 +16,6 @@
 
 ---
 
-## 🚀 Paper
-
-- [Read the full paper here](#) <!-- Add your actual link -->
-
----
-
-## 📊 Main Results
-
-| Dataset     | ExpRate (%) | Baseline (CoMER) | Mask CoMER (Ours) | SOTA Gain |
-|-------------|:-----------:|:----------------:|:-----------------:|:---------:|
-| CROHME 2014 |    59.36    |      59.36       |      64.56        |  +5.20    |
-| CROHME 2016 |    58.03    |      58.03       |      63.03        |  +5.00    |
-| CROHME 2019 |    63.50    |      63.50       |      65.22        |  +1.72    |
-
----
-
 ## 📦 Code
 
 > **Source code coming soon!**  
