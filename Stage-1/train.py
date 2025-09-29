@@ -9,7 +9,6 @@ from pytorch_lightning.callbacks import (
 from pytorch_lightning.loggers import WandbLogger as Logger
 import argparse
 from sconf import Config
-from comer.rclone_callback import RcloneUploadCallback
 import subprocess
 
 class GradNormCallback(Callback):
@@ -63,24 +62,18 @@ def train(config):
         )
 
     print("Loading logger")
-    logger = Logger("Mask-Predict_0.50_constant", project="CoMer Project", config=dict(config), log_model='all')
+    logger = Logger("Mask-Predict", project="CoMer Project", config=dict(config), log_model='all')
     logger.watch(model_module.comer_model, log="all", log_freq=100)
 
     print("Loading callbacks")
     lr_callback = LearningRateMonitor(logging_interval=config.trainer.callbacks[0].init_args.logging_interval)
 
     checkpoint_callback = ModelCheckpoint(save_top_k=config.trainer.callbacks[1].init_args.save_top_k, 
-                                                    monitor=None, 
+                                                    monitor=config.trainer.callbacks[1].init_args.monitor, 
                                                     mode=config.trainer.callbacks[1].init_args.mode,
                                                     filename=config.trainer.callbacks[1].init_args.filename)
 
     grad_norm_callback = GradNormCallback()
-    
-    local_dir = "/kaggle/working/CoMER_checkpoints"
-    remote_dir =  "one_drive:Projects/HMER\ Project/Checkpoints/Mask_pretrain"
-    r_clone_callback = RcloneUploadCallback(
-            local_dir = local_dir,
-            remote_dir = remote_dir)
 
     print("Loading data module")
     data_module = CROHMEDatamodule(
@@ -102,20 +95,11 @@ def train(config):
         deterministic=config.trainer.deterministic,
         callbacks = [lr_callback, 
                      grad_norm_callback,
-                     r_clone_callback,
                      checkpoint_callback],
-        default_root_dir=local_dir,
         resume_from_checkpoint=config.trainer.resume_from_checkpoint,
         )
     
-    try:
-        trainer.fit(model_module,data_module)
-    except Exception as e:
-        print(f"Training crashed due to: {e}")
-    finally:
-        print("Ensuring final upload to OneDrive before exit...")
-        subprocess.run(f"rclone copy {local_dir} {remote_dir} --verbose", shell=True, check=True)
-        print("Final upload completed.")
+    trainer.fit(model_module,data_module)
 
 
 if __name__ == "__main__":
