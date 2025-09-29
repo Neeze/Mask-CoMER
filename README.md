@@ -20,7 +20,7 @@
 
 ### 1. Create environment
 ```bash
-conda create -n maskcomer python=3.11 -y
+conda create -n maskcomer python=3.7 -y
 conda activate maskcomer
 ```
 
