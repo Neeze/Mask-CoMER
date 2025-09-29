@@ -1,4 +1,4 @@
-# Mask CoMER: Enhancing Handwritten Mathematical Expression Recognition with Masked Language Pretraining and Regularization (Coming Soon!)
+# Mask CoMER: Enhancing Handwritten Mathematical Expression Recognition with Masked Language Pretraining and Regularization
 
 <p align="center">
   <a href="https://link.springer.com/chapter/10.1007/978-3-032-04624-6_22"><img alt="Paper" src="https://img.shields.io/badge/Paper-PDF-blue?logo=readthedocs"></a>
