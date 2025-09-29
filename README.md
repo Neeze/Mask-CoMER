@@ -16,10 +16,28 @@
 
 ---
 
-## 📦 Code
+## ⚙️ Installation
 
-> **Source code coming soon!**  
-> Stay tuned—follow or star this repo for updates.
+### 1. Create environment
+```bash
+conda create -n maskcomer python=3.11 -y
+conda activate maskcomer
+```
+
+### 2. Install PyTorch
+
+Make sure to install the PyTorch version compatible with your CUDA toolkit.
+For example, with CUDA 11.1:
+
+```bash
+pip install torch==1.8.1 torchvision==0.2.2 cudatoolkit==11.1
+```
+
+### 3. Install additional dependencies
+
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
