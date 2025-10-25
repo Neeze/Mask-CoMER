@@ -9,7 +9,6 @@ from pytorch_lightning.callbacks import (
 from pytorch_lightning.loggers import WandbLogger as Logger
 import argparse
 from sconf import Config
-import subprocess
 
 class GradNormCallback(Callback):
     """
@@ -62,19 +61,25 @@ def train(config):
         )
 
     print("Loading logger")
-    logger = Logger("Mask-Predict", project="CoMer Project", config=dict(config), log_model='all')
+    logger = Logger(config.logger.name,
+                    project=config.logger.project,
+                    config=dict(config))
     logger.watch(model_module.comer_model, log="all", log_freq=100)
 
     print("Loading callbacks")
     lr_callback = LearningRateMonitor(logging_interval=config.trainer.callbacks[0].init_args.logging_interval)
 
-    checkpoint_callback = ModelCheckpoint(save_top_k=config.trainer.callbacks[1].init_args.save_top_k, 
+    checkpoint_callback_all = ModelCheckpoint(dirpath="checkpoints/all_epochs",
+                                                filename="epoch-{epoch:02d}", 
+                                                save_top_k=-1,
+                                                every_n_epochs=1,)
+
+    checkpoint_callback_best = ModelCheckpoint(save_top_k=config.trainer.callbacks[1].init_args.save_top_k, 
                                                     monitor=config.trainer.callbacks[1].init_args.monitor, 
                                                     mode=config.trainer.callbacks[1].init_args.mode,
                                                     filename=config.trainer.callbacks[1].init_args.filename)
-
     grad_norm_callback = GradNormCallback()
-
+    
     print("Loading data module")
     data_module = CROHMEDatamodule(
         zipfile_path = config.data.zipfile_path,
@@ -82,7 +87,8 @@ def train(config):
         train_batch_size = config.data.train_batch_size,
         eval_batch_size = config.data.eval_batch_size,
         num_workers = config.data.num_workers,
-        scale_aug = config.data.scale_aug,)
+        scale_aug = config.data.scale_aug,
+        mask_ratio = config.data.mask_ratio,)
 
     print("Training")
     trainer = pl.Trainer(
@@ -94,13 +100,12 @@ def train(config):
         logger=logger,
         deterministic=config.trainer.deterministic,
         callbacks = [lr_callback, 
-                     grad_norm_callback,
-                     checkpoint_callback],
-        resume_from_checkpoint=config.trainer.resume_from_checkpoint,
-        )
+                     grad_norm_callback, 
+                     checkpoint_callback_best,
+                     checkpoint_callback_all],
+    )
     
     trainer.fit(model_module,data_module)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

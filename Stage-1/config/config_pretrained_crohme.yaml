@@ -10,14 +10,14 @@ trainer:
         save_top_k: 1
         monitor: val_loss
         mode: min
-        filename: 'Mask_40_{epoch}-{step}-{val_loss:.2f}'
+        filename: '{epoch}-{step}-{val_loss:.2f}'
   # gpus: 1
   gpus: 1
   accelerator: gpu
   check_val_every_n_epoch: 2
-  max_epochs: 300
+  max_epochs: 310
   deterministic: true
-  resume_from_checkpoint: "/kaggle/working/Mask_50_epoch=249-step=375249-val_loss=0.97.ckpt"
+  resume_from_checkpoint: null
 model:
   d_model: 256
   # encoder
@@ -43,7 +43,11 @@ model:
 data:
   zipfile_path: data.zip
   test_year: 'all'
-  train_batch_size: 8
-  eval_batch_size: 4
-  num_workers: 4
+  train_batch_size: 32
+  eval_batch_size: 16
+  num_workers: 5
   scale_aug: true
+  mask_ratio: 0.4
+logger:
+  project: 'CROHME MASK STAGE'
+  name: '40 MASK'

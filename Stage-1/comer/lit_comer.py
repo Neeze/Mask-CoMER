@@ -83,18 +83,18 @@ class LitCoMER(pl.LightningModule):
         return self.comer_model(img, img_mask, tgt)
 
     def training_step(self, batch: Batch, _):
-        out_hat = self(batch.imgs, batch.mask, batch.indices.to(self.device))
+        out_hat = self(batch.imgs, batch.mask, batch.indices)
         
-        loss = ce_loss(out_hat, batch.labels.to(self.device))
+        loss = ce_loss(out_hat, batch.labels)
         self.log("train_loss", loss, on_step=False, on_epoch=True, sync_dist=True)
 
         return loss
     
 
     def validation_step(self, batch: Batch, _):
-        out_hat = self(batch.imgs, batch.mask, batch.indices.to(self.device))
+        out_hat = self(batch.imgs, batch.mask, batch.indices)
         
-        loss = ce_loss(out_hat, batch.labels.to(self.device))
+        loss = ce_loss(out_hat, batch.labels)
 
         self.log(
             "val_loss",

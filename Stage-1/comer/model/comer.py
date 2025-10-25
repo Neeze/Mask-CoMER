@@ -60,8 +60,6 @@ class CoMER(pl.LightningModule):
             [2b, l, vocab_size]
         """
         feature, mask = self.encoder(img, img_mask)  # [b, t, d]
-        feature = torch.cat((feature, feature), dim=0)  # [2b, t, d]
-        mask = torch.cat((mask, mask), dim=0)
 
         out = self.decoder(feature, mask, tgt)
 
