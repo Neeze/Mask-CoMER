@@ -7,7 +7,7 @@ from torch import FloatTensor, LongTensor
 
 from comer.datamodule import Batch, vocab
 from comer.model.comer import CoMER
-from comer.utils.utils import (ExpRateRecorder, Hypothesis, ce_loss, focal_loss,
+from comer.utils.utils import (ExpRateRecorder, Hypothesis, ce_loss,
                                to_bi_tgt_out)
 
 

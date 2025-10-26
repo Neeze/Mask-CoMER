@@ -14,11 +14,9 @@ from torch.utils.data.dataloader import DataLoader
 
 from .vocab import vocab
 
-from comer.utils.utils import mask_to_bi_tgt_out, mask_to_bi_tgt_out_val
-
 Data = List[Tuple[str, Image.Image, List[str]]]
 
-MASK_RATIO = 0.40
+MASK_RATIO = 0.25
 
 MAX_SIZE = 32e4  # change here accroading to your GPU memory
 
@@ -124,18 +122,18 @@ class Batch:
             img_bases=self.img_bases,
             imgs=self.imgs.to(device),
             mask=self.mask.to(device),
-            indices=self.indices,
-            labels=self.labels
+            indices=self.indices.to(device),
+            labels=self.labels.to(device),
         )
 
 def collate_fn(batch):
     assert len(batch) == 1
-    batch = batch[0]
+    batch = batch[0] 
+
     fnames = batch[0]
     images_x = batch[1]
-    seqs_y = [vocab.words2indices(x) for x in batch[2]]
-
-    indices_y, labels_y = mask_to_bi_tgt_out(seqs_y, mask_prob=MASK_RATIO, device='cpu')
+    indices = batch[2]
+    labels = batch[3]
 
     heights_x = [s.size(1) for s in images_x]
     widths_x = [s.size(2) for s in images_x]
@@ -150,33 +148,7 @@ def collate_fn(batch):
         x[idx, :, : heights_x[idx], : widths_x[idx]] = s_x
         x_mask[idx, : heights_x[idx], : widths_x[idx]] = 0
 
-    # return fnames, x, x_mask, seqs_y
-    return Batch(fnames, x, x_mask, indices_y, labels_y)
-
-def collate_fn_val(batch):
-    assert len(batch) == 1
-    batch = batch[0]
-    fnames = batch[0]
-    images_x = batch[1]
-    seqs_y = [vocab.words2indices(x) for x in batch[2]]
-
-    indices_y, labels_y = mask_to_bi_tgt_out_val(seqs_y, mask_prob=MASK_RATIO, device='cpu')
-
-    heights_x = [s.size(1) for s in images_x]
-    widths_x = [s.size(2) for s in images_x]
-
-    n_samples = len(heights_x)
-    max_height_x = max(heights_x)
-    max_width_x = max(widths_x)
-
-    x = torch.zeros(n_samples, 1, max_height_x, max_width_x)
-    x_mask = torch.ones(n_samples, max_height_x, max_width_x, dtype=torch.bool)
-    for idx, s_x in enumerate(images_x):
-        x[idx, :, : heights_x[idx], : widths_x[idx]] = s_x
-        x_mask[idx, : heights_x[idx], : widths_x[idx]] = 0
-
-    # return fnames, x, x_mask, seqs_y
-    return Batch(fnames, x, x_mask, indices_y, labels_y)
+    return Batch(fnames, x, x_mask, indices, labels)
 
 
 def build_dataset(archive, folder: str, batch_size: int):
@@ -188,7 +160,6 @@ def build_dataset(archive, folder: str, batch_size: int):
             data += extract_data(archive, year)
     return data_iterator(data, batch_size)
 
-
 class CROHMEDatamodule(pl.LightningDataModule):
     def __init__(
         self,
@@ -198,6 +169,7 @@ class CROHMEDatamodule(pl.LightningDataModule):
         eval_batch_size: int = 4,
         num_workers: int = 5,
         scale_aug: bool = False,
+        mask_ratio: float = 0.15,
     ) -> None:
         super().__init__()
         assert isinstance(test_year, str)
@@ -207,6 +179,7 @@ class CROHMEDatamodule(pl.LightningDataModule):
         self.eval_batch_size = eval_batch_size
         self.num_workers = num_workers
         self.scale_aug = scale_aug
+        self.mask_ratio = mask_ratio
 
         print(f"Load data from: {self.zipfile_path}")
 
@@ -217,17 +190,20 @@ class CROHMEDatamodule(pl.LightningDataModule):
                     build_dataset(archive, "train", self.train_batch_size),
                     True,
                     self.scale_aug,
+                    mask_ratio=self.mask_ratio,
                 )
                 self.val_dataset = CROHMEDataset(
                     build_dataset(archive, self.test_year, self.eval_batch_size),
                     False,
                     self.scale_aug,
+                    mask_ratio=self.mask_ratio,
                 )
             if stage == "test" or stage is None:
                 self.test_dataset = CROHMEDataset(
-                    build_dataset(archive, "2014", self.eval_batch_size),
+                    build_dataset(archive, self.test_year, self.eval_batch_size),
                     False,
                     self.scale_aug,
+                    mask_ratio=self.mask_ratio,
                 )
 
     def train_dataloader(self):
@@ -243,7 +219,7 @@ class CROHMEDatamodule(pl.LightningDataModule):
             self.val_dataset,
             shuffle=False,
             num_workers=self.num_workers,
-            collate_fn=collate_fn_val,
+            collate_fn=collate_fn,
         )
 
     def test_dataloader(self):
@@ -251,5 +227,5 @@ class CROHMEDatamodule(pl.LightningDataModule):
             self.test_dataset,
             shuffle=False,
             num_workers=self.num_workers,
-            collate_fn=collate_fn_val,
+            collate_fn=collate_fn,
         )
